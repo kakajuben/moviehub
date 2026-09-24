@@ -3,6 +3,7 @@ import { createFileRoute, Link, useRouter } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
 import { ArrowLeft, Star, Play } from "lucide-react";
 import { getCatalogItem, listCatalog } from "@/lib/catalog";
+import { useAuth } from "@/hooks/useAuth";
 import { VideoPlayer } from "@/components/VideoPlayer";
 import { SiteHeader } from "@/components/SiteHeader";
 
@@ -26,6 +27,7 @@ const SNAPWC = "https://snapwc.com/vk";
 
 function TitlePage() {
   const { id } = Route.useParams();
+  const { isAdmin } = useAuth();
   const router = useRouter();
   const [playerOpen, setPlayerOpen] = useState(false);
   const { data: item, isLoading } = useQuery({ queryKey: ["catalog", id], queryFn: () => getCatalogItem(id) });
@@ -87,7 +89,15 @@ function TitlePage() {
               <h1 className="font-display text-3xl font-extrabold tracking-tight text-foreground sm:text-5xl">{item.title}</h1>
               <div className="mt-3 flex flex-wrap items-center gap-3 text-xs text-muted-foreground"><span className="rounded-full border border-border bg-white/5 px-3 py-1 uppercase tracking-wider">{item.type}</span>{item.year && <span>{item.year}</span>}{item.rating && <span className="inline-flex items-center gap-1 text-amber-400"><Star className="size-3 fill-current" /> {item.rating}</span>}</div>
               {item.synopsis && <p className="mt-5 max-w-3xl text-sm leading-relaxed text-muted-foreground sm:text-base">{item.synopsis}</p>}
-              <div className="mt-7 flex flex-wrap items-center gap-3"><button type="button" onClick={() => setPlayerOpen((v) => !v)} className="inline-flex items-center gap-2 rounded-xl bg-primary px-6 py-3 text-sm font-bold text-primary-foreground shadow-[0_0_18px_rgba(168,85,247,0.35)] transition hover:brightness-110"><Play className="size-4 fill-current" />{playerOpen ? "Hide servers" : "Watch now"}</button></div>
+              <div className="mt-7 flex flex-wrap items-center gap-3">
+                <button type="button" onClick={() => setPlayerOpen((v) => !v)} className="inline-flex items-center gap-2 rounded-xl bg-primary px-6 py-3 text-sm font-bold text-primary-foreground shadow-[0_0_18px_rgba(168,85,247,0.35)] transition hover:brightness-110"><Play className="size-4 fill-current" />{playerOpen ? "Hide servers" : "Watch now"}</button></div>
+             {isAdmin && (
+                  <Link to="/admin" search={{ action: "edit", id: item.id }} className="inline-flex items-center gap-2 rounded-xl border border-white/10 bg-white/5 px-6 py-3 text-sm font-medium text-white/50 transition hover:border-white/20 hover:bg-white/10 hover:text-white">
+                    <FileEdit className="size-4" />
+                    Edit
+                  </Link>
+                )}
+              </div>
               <div className="mt-4 flex flex-wrap items-center gap-2">{item.telegram_url && <a href={item.telegram_url} target="_blank" rel="noopener noreferrer" className="rounded-full bg-sky-brand/10 px-3 py-1.5 text-xs font-medium text-sky-brand transition hover:bg-sky-brand/20">Telegram</a>}{item.vk_url && <a href={item.vk_url} target="_blank" rel="noopener noreferrer" className="rounded-full bg-primary/10 px-3 py-1.5 text-xs font-medium text-primary transition hover:bg-primary/20">VK Proxy</a>}<a href={SNAPWC} target="_blank" rel="noopener noreferrer" className="rounded-full border border-border px-3 py-1.5 text-xs font-medium text-muted-foreground transition hover:text-foreground">SnapWC</a></div>
               {item.genres.length > 0 && <div className="mt-6 flex flex-wrap gap-2">{item.genres.map((g) => <Link key={g} to="/" search={{ genre: g }} className="inline-flex items-center gap-1.5 rounded-full border border-border bg-white/5 px-3 py-1.5 text-xs font-medium text-muted-foreground transition hover:text-foreground">{g}</Link>)}</div>}
               {item.stars.length > 0 && <div className="mt-3 flex flex-wrap gap-2">{item.stars.map((s) => <Link key={s} to="/" search={{ q: s }} className="inline-flex items-center gap-1.5 rounded-full border border-border bg-white/5 px-3 py-1.5 text-xs font-medium text-muted-foreground transition hover:text-foreground">{s}</Link>)}</div>}
