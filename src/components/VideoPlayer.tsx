@@ -248,7 +248,7 @@ export function VideoPlayer({
           ) : (
             <iframe
               ref={iframeRef}
-              src={activeSource.url}
+              src={activeSource.url.includes("drive.google.com") ? activeSource.url.replace(/\/view.*/, "/preview") : activeSource.url}
               title={title}
               className="aspect-video w-full border-0"
               allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; fullscreen"
